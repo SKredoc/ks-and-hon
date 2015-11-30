@@ -95,13 +95,13 @@ void printBSinfo(){
         BS.reserved_0, BS.drive_number, BS.reserved_1, BS.boot_signature, BS.volume_id, BS.volume_label, BS.fat_type_label);
 
 	unsigned int ROOT_START = (BS.reserved_sector_count + BS.table_size_32 * BS.fat_num) * BS.bytes_per_sector;
-    unsigned int FAT_START = BS.reserved_sector_count* BS.bytes_per_sector;
-    unsigned int cluster_size = BS.bytes_per_sector * BS.sectors_per_cluster;
-    unsigned int file_size = BS.bytes_per_sector * BS.total_sectors_32;
-    printf("ROOT_START: %d\n", ROOT_START);
-    printf("FAT_START: %d\n", FAT_START );
-    printf("cluster_size: %d\n", cluster_size);
-    printf("file_size; %d\n", file_size);
+	unsigned int FAT_START = BS.reserved_sector_count* BS.bytes_per_sector;
+	unsigned int cluster_size = BS.bytes_per_sector * BS.sectors_per_cluster;
+	unsigned int file_size = BS.bytes_per_sector * BS.total_sectors_32;
+    	printf("ROOT_START: %d\n", ROOT_START);
+    	printf("FAT_START: %d\n", FAT_START );
+    	printf("cluster_size: %d\n", cluster_size);
+    	printf("file_size; %d\n", file_size);
 }
 
 /** print out the information of the directory entry
@@ -125,8 +125,8 @@ void printentry(struct DirEntry entry){
 
 int tokenize_path(char **subDirectory, char *input){
   	int num = 0;
-	  int i = 0;
-	  char *token = strtok(input , "/");
+	int i = 0;
+	char *token = strtok(input , "/");
   	while( token != NULL ){
     		subDirectory[i] = (char*)malloc(sizeof(char)*strlen(token)+1);
     		strcpy( subDirectory[i] , token);
@@ -156,29 +156,29 @@ unsigned char* correctName(unsigned char* name, unsigned char attr){
 	if( name[0] == 0xe5) //0xe5 represents deleted file
 		name[0] = '?';
 	if( ((attr >> 5) & 1) == 0){//is file
-	  	for( i = 0 ; i < 8 ; i++){
-	    		if(name[i] != 0x20){
-	      			memcpy(correctName+pos, name+i, 1);
-	      			pos++;
-	    		}
+		for( i = 0 ; i < 8 ; i++){
+			if(name[i] != 0x20){
+				memcpy(correctName+pos, name+i, 1);
+				pos++;
+			}
 	  	}
 	  	correctName[pos] = '/';
 	}
 	else{
 	  	for( i = 0 ; i < 8 ; i++){
-	    		if(name[i] != 0x20){
-	      			memcpy(correctName+pos, name+i, 1);
-        			pos++;
-      			}
-    		}
+			if(name[i] != 0x20){
+				memcpy(correctName+pos, name+i, 1);
+				pos++;
+			}
+		}
 		if(name[8]  != 0x20)
-    			correctName[pos++] = '.';
-    		for( i = 8 ; i < 11 ; i++){
-      			if(name[i] != 0x20){
-        			memcpy(correctName+pos, name+i, 1);
-        			pos++;
-      			}
-    		}
+			correctName[pos++] = '.';
+		for( i = 8 ; i < 11 ; i++){
+			if(name[i] != 0x20){
+				memcpy(correctName+pos, name+i, 1);
+				pos++;
+			}
+		}
   	}
   	return correctName;
 }
@@ -249,7 +249,6 @@ char checkArgument(int argc, char **argv){
 void init_BS(){
 	FILE *in = fopen(devName, "rb"); //rb means read-only for non-text file
 	if(in == NULL){
-		perror("error");
 		return;
 	}
 	fread(&BS, sizeof(BS), 1, in);
@@ -282,8 +281,8 @@ unsigned int getClusterAddr(short high, short low){
   **/
 unsigned int accessCluster(FILE* in, unsigned int targetCluster, char operation, char *targetDir){
 	unsigned int ROOT_START = (BS.reserved_sector_count + BS.table_size_32 * BS.fat_num) * BS.bytes_per_sector;
-  unsigned int FAT_START = BS.reserved_sector_count* BS.bytes_per_sector;
-  unsigned int CLUSTER_SIZE = BS.bytes_per_sector * BS.sectors_per_cluster;
+  	unsigned int FAT_START = BS.reserved_sector_count* BS.bytes_per_sector;
+  	unsigned int CLUSTER_SIZE = BS.bytes_per_sector * BS.sectors_per_cluster;
 	
 	int i = 0;
 	printf("targetCluster = %u\n", targetCluster);
@@ -300,27 +299,27 @@ unsigned int accessCluster(FILE* in, unsigned int targetCluster, char operation,
         			break;
 
       			if(isLNF(entry.attr) == 1)
-				      continue;
+				continue;
       			
-            else if(operation == 'l'){ //do listing the content of targetCluster
+            		else if(operation == 'l'){ //do listing the content of targetCluster
         			i++;
-				      printf("%d, %s, %d, %d\n", i, correctName(entry.name,entry.attr), entry.filesize, getClusterAddr(entry.first_hi, entry.first_lo));
+				printf("%d, %s, %d, %d\n", i, correctName(entry.name,entry.attr), entry.filesize, getClusterAddr(entry.first_hi, entry.first_lo));
       			}
-            else if(operation == 'f'){ //do finding the targetDir
-              if( strcmp(correctName(entry.name, entry.attr), targetDir) == 0){
-                      entrySize = entry.filesize; //for recovery usage
-                      printf("%s is found\n", targetDir);                      
-                      return getClusterAddr(entry.first_hi, entry.first_lo);
-              }
-            }
+            		else if(operation == 'f'){ //do finding the targetDir
+              			if( strcmp(correctName(entry.name, entry.attr), targetDir) == 0){
+                      			entrySize = entry.filesize; //for recovery usage
+                      			printf("%s is found\n", targetDir);                      
+                      			return getClusterAddr(entry.first_hi, entry.first_lo);
+              			}
+            		}
     		}
     		data_read = 0;
     		fseek(in, FAT_START + targetCluster * 4, SEEK_SET); // go to fat[cluster]
     		fread(&targetCluster, 4, 1, in);
     		targetCluster &= 0x0FFFFFFF;
-        printf("targetCluster = %u\n", targetCluster);
+        	printf("targetCluster = %u\n", targetCluster);
 	}
-  return 0;
+  	return 0;
 }
 
 /** access the directory which is a sub directory
@@ -330,21 +329,21 @@ unsigned int accessCluster(FILE* in, unsigned int targetCluster, char operation,
 unsigned int access_sub_directory(FILE* in, char** subDirectory, int layer){
 	printf("list the sub directory start\n");
 
-  unsigned int targetCluster = 2; //root-cluster
-  int curLayer;
+  	unsigned int targetCluster = 2; //root-cluster
+  	int curLayer;
   	
 	for( curLayer = 0 ; curLayer < layer ; curLayer++){
-        printf("*****find: %s\n", subDirectory[curLayer]);
-        targetCluster = accessCluster(in, targetCluster, 'f', subDirectory[curLayer]);
-        if(targetCluster > 0){ //if subDirectory[curLayer] is found
-          printf("%s is found. Directory is in the cluster[%u]\n", subDirectory[curLayer], targetCluster);
-          continue;
-        }
-        else{
-          printf("error: cannot find the directory=[%s]\n", subDirectory[curLayer]);
-          return 0; //cannot find the directory
-        }
-  }
+        	printf("*****find: %s\n", subDirectory[curLayer]);
+        	targetCluster = accessCluster(in, targetCluster, 'f', subDirectory[curLayer]);
+        	if(targetCluster > 0){ //if subDirectory[curLayer] is found
+        	 	printf("%s is found. Directory is in the cluster[%u]\n", subDirectory[curLayer], targetCluster);
+        	  	continue;
+        	}
+        	else{
+        	  	printf("error: cannot find the directory=[%s]\n", subDirectory[curLayer]);
+        	  	return 0; //cannot find the directory
+        	}
+  	}
 	return targetCluster;
 }
 
@@ -352,15 +351,15 @@ unsigned int access_sub_directory(FILE* in, char** subDirectory, int layer){
  **/
 void list_target_directory(FILE* in){
 	if(isSubDir()){ //list sub-directory
-    char path[1024];
-    strcpy(path, listDir);
-    char **subDirectory = (char**)malloc(sizeof(char*)*1024);
-    int layer = tokenize_path(subDirectory, path); // tokenize path = "aaa/bbb/ccc" into {"aaa/","bbb/","ccc/"} and store it in subDirectory
-    unsigned int targetCluster = access_sub_directory(in, subDirectory, layer);
-    if(targetCluster>0) // if the sub_directory is found
-      accessCluster(in, targetCluster, 'l', NULL); // list the content of the targetCluster
-    else
-      printf("error: cannot find the sub-directory=[%s]\n", listDir);
+    	char path[1024];
+    	strcpy(path, listDir);
+    	char **subDirectory = (char**)malloc(sizeof(char*)*1024);
+    	int layer = tokenize_path(subDirectory, path); // tokenize path = "aaa/bbb/ccc" into {"aaa/","bbb/","ccc/"} and store it in subDirectory
+    	unsigned int targetCluster = access_sub_directory(in, subDirectory, layer);
+    	if(targetCluster>0) // if the sub_directory is found
+    	 	accessCluster(in, targetCluster, 'l', NULL); // list the content of the targetCluster
+    	else
+    	  	printf("error: cannot find the sub-directory=[%s]\n", listDir);
 	}
 	else{		//list root-directory, 2 is cluster of root-directory
 		accessCluster(in, 2, 'l', NULL); //list the content of root-directory
@@ -372,57 +371,57 @@ void list_target_directory(FILE* in){
 void recover_target_pathname(FILE* in){
   	unsigned int ROOT_START = (BS.reserved_sector_count + BS.table_size_32 * BS.fat_num) * BS.bytes_per_sector;
   	unsigned int FAT_START = BS.reserved_sector_count* BS.bytes_per_sector;
-    unsigned int CLUSTER_SIZE = BS.bytes_per_sector * BS.sectors_per_cluster;
-   
-    char path[1024];
-    strcpy(path, recoverFile);
-    char **subDirectory = (char**)malloc(sizeof(char*)*1024);
-    int layer = tokenize_path(subDirectory, path); // "aaa/bbb/FILE => {"aaa/", "bbb/", "FILE/"}, layer = 3
-    layer --; //layer = 2
-    subDirectory[layer][strlen(subDirectory[layer])-1] = '\0'; // {"aaa/", "bbb/", "FILE/"} => {"aaa/", "bbb/", "FILE"}
-    
-    char targetName[1024];
-    strcpy(targetName, subDirectory[layer]); //targetName = "FILE"
-    char fileName[1024];
-    strcpy(fileName, targetName); //fileName = "FILE"
-    targetName[0] = '?'; //targetName = "?ILE"
-
-    int isFound = 0;
-
-    unsigned int targetCluster = access_sub_directory(in, subDirectory, layer);
-    if(targetCluster > 0){ //the sub-directory is found
-      targetCluster = accessCluster(in, targetCluster, 'f', targetName);
-      if(targetCluster > 0){ //the targetName is found
-        isFound = 1; 
-      }
-    }
-    if( isFound == 0){
-	    printf("[%s]: error - file not found\n", fileName);
-	    exit(-1);
+    	unsigned int CLUSTER_SIZE = BS.bytes_per_sector * BS.sectors_per_cluster;
+   	
+   	char path[1024];
+   	strcpy(path, recoverFile);
+   	char **subDirectory = (char**)malloc(sizeof(char*)*1024);
+	int layer = tokenize_path(subDirectory, path); // "aaa/bbb/FILE => {"aaa/", "bbb/", "FILE/"}, layer = 3
+	layer --; //layer = 2
+	subDirectory[layer][strlen(subDirectory[layer])-1] = '\0'; // {"aaa/", "bbb/", "FILE/"} => {"aaa/", "bbb/", "FILE"}
+    	
+	char targetName[1024];
+	strcpy(targetName, subDirectory[layer]); //targetName = "FILE"
+	char fileName[1024];
+	strcpy(fileName, targetName); //fileName = "FILE"
+	targetName[0] = '?'; //targetName = "?ILE"
+	
+	int isFound = 0;
+	
+	unsigned int targetCluster = access_sub_directory(in, subDirectory, layer);
+	if(targetCluster > 0){ //the sub-directory is found
+		targetCluster = accessCluster(in, targetCluster, 'f', targetName);
+      		if(targetCluster > 0){ //the targetName is found
+        		isFound = 1; 
+      		}
+    	}
+    	if( isFound == 0){
+		printf("[%s]: error - file not found\n", fileName);
+		exit(-1);
   	}
 
- 	  int occupied;
- 	  fseek(in, FAT_START + targetCluster * 4, SEEK_SET);
- 	  fread(&occupied, 4, 1, in);
- 	  occupied &= 0x0FFFFFFF;
- 	  if( occupied != 0){
-    	printf("[%s]: error - fail to recover\n", fileName);
-    	exit(-1);
-  	}
+	int occupied;
+	fseek(in, FAT_START + targetCluster * 4, SEEK_SET);
+	fread(&occupied, 4, 1, in);
+	occupied &= 0x0FFFFFFF;
+ 	if( occupied != 0){
+		printf("[%s]: error - fail to recover\n", fileName);
+		exit(-1);
+	}
   	
-  	printf("targetCluster: %u\n", targetCluster);
-  	unsigned char *buf = (unsigned char*)malloc(sizeof(unsigned char)*CLUSTER_SIZE);
-  	//  char *buf = (char*)malloc(sizeof(char)*cluster_size);
-  	//******************check the empty file 
-  	fseek(in, ROOT_START + (targetCluster-2) * CLUSTER_SIZE, SEEK_SET);
-  	fread(buf, entrySize, 1, in);
-  	printf("the content\n");
-  	printf("%s\n", buf);
+	printf("targetCluster: %u\n", targetCluster);
+	unsigned char *buf = (unsigned char*)malloc(sizeof(unsigned char)*CLUSTER_SIZE);
+	//  char *buf = (char*)malloc(sizeof(char)*cluster_size);
+	//******************check the empty file 
+	fseek(in, ROOT_START + (targetCluster-2) * CLUSTER_SIZE, SEEK_SET);
+	fread(buf, entrySize, 1, in);
+	printf("the content\n");
+	printf("%s\n", buf);
   	
-   	FILE *fp;
-  	if((fp = fopen(outputFile, "w+")) == NULL){
-  		printf("[%s]: failed to open", outputFile);
-  	}
+	FILE *fp;
+	if((fp = fopen(outputFile, "w+")) == NULL){
+		printf("[%s]: failed to open", outputFile);
+	}
   	//fwrite(buf, cluster_size, 1, fp);
   	fwrite(buf, entrySize, 1, fp);
   	fclose(fp);
@@ -432,11 +431,11 @@ void recover_target_pathname(FILE* in){
 int main(int argc, char **argv){
 	char opt = checkArgument(argc, argv);
 	init_BS(); //init the Boot Sector
-  FILE* in = fopen(devName,"rb"); //open the device
-  if( in == NULL){
-    perror("error");
-    return;
-  }
+	FILE* in = fopen(devName,"rb"); //open the device
+	if( in == NULL){
+		perror("error");
+		return 0;
+	}
 	switch(opt){
 		case 'l':
 			list_target_directory(in);
@@ -445,6 +444,6 @@ int main(int argc, char **argv){
 			recover_target_pathname(in);
 			break;
 	}
-  fclose(in); 
+	fclose(in); 
 	return 0;
 }
