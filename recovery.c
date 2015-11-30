@@ -351,15 +351,15 @@ unsigned int access_sub_directory(FILE* in, char** subDirectory, int layer){
  **/
 void list_target_directory(FILE* in){
 	if(isSubDir()){ //list sub-directory
-    	char path[1024];
-    	strcpy(path, listDir);
-    	char **subDirectory = (char**)malloc(sizeof(char*)*1024);
-    	int layer = tokenize_path(subDirectory, path); // tokenize path = "aaa/bbb/ccc" into {"aaa/","bbb/","ccc/"} and store it in subDirectory
-    	unsigned int targetCluster = access_sub_directory(in, subDirectory, layer);
-    	if(targetCluster>0) // if the sub_directory is found
-    	 	accessCluster(in, targetCluster, 'l', NULL); // list the content of the targetCluster
-    	else
-    	  	printf("error: cannot find the sub-directory=[%s]\n", listDir);
+	char path[1024];
+		strcpy(path, listDir);
+		char **subDirectory = (char**)malloc(sizeof(char*)*1024);
+		int layer = tokenize_path(subDirectory, path); // tokenize path = "aaa/bbb/ccc" into {"aaa/","bbb/","ccc/"} and store it in subDirectory
+		unsigned int targetCluster = access_sub_directory(in, subDirectory, layer);
+		if(targetCluster>0) // if the sub_directory is found
+			accessCluster(in, targetCluster, 'l', NULL); // list the content of the targetCluster
+		else
+			printf("error: cannot find the sub-directory=[%s]\n", listDir);
 	}
 	else{		//list root-directory, 2 is cluster of root-directory
 		accessCluster(in, 2, 'l', NULL); //list the content of root-directory
@@ -371,7 +371,7 @@ void list_target_directory(FILE* in){
 void recover_target_pathname(FILE* in){
   	unsigned int ROOT_START = (BS.reserved_sector_count + BS.table_size_32 * BS.fat_num) * BS.bytes_per_sector;
   	unsigned int FAT_START = BS.reserved_sector_count* BS.bytes_per_sector;
-    	unsigned int CLUSTER_SIZE = BS.bytes_per_sector * BS.sectors_per_cluster;
+    unsigned int CLUSTER_SIZE = BS.bytes_per_sector * BS.sectors_per_cluster;
    	
    	char path[1024];
    	strcpy(path, recoverFile);
