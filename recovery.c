@@ -437,15 +437,15 @@ void recover_target_pathname(FILE* in){
 			int k;
 			fseek(in, ROOT_START + (targetCluster-2) * CLUSTER_SIZE, SEEK_SET);
 
-			printf("the content\n");
+		//	printf("the content\n");
 			for(k=0;k<num_of_MB;k++){
 					fread(buf, oneMB, 1, in);
 					fwrite(buf, oneMB, 1, out);
-					printf("%s",buf);
+		//			printf("%s",buf);
 			}
 			fread(buf, remain_MB, 1, in);
 		fwrite(buf, remain_MB, 1, out);
-		printf("%s\n",buf);
+		//printf("%s\n",buf);
 
 	}
 	else{
