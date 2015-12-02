@@ -393,72 +393,72 @@ void recover_target_pathname(FILE* in){
 		layer --; //layer = 2
 		subDirectory[layer][strlen(subDirectory[layer])-1] = '\0'; // {"aaa/", "bbb/", "FILE/"} => {"aaa/", "bbb/", "FILE"}
 
-char targetName[1024];
-strcpy(targetName, subDirectory[layer]); //targetName = "FILE"
-targetName[0] = '?'; //targetName = "?ILE"
-
-int isFound = 0;
-
-unsigned int targetCluster = access_sub_directory(in, subDirectory, layer);
-if(targetCluster > 0){ //the sub-directory is found
+	char targetName[1024];
+	strcpy(targetName, subDirectory[layer]); //targetName = "FILE"
+	targetName[0] = '?'; //targetName = "?ILE"
+	
+	int isFound = 0;
+	
+	unsigned int targetCluster = access_sub_directory(in, subDirectory, layer);
+	if(targetCluster > 0){ //the sub-directory is found
 		targetCluster = accessCluster(in, targetCluster, 'f', targetName);
 		if(targetCluster > 0){ //the targetName is found
 				isFound = 1; 
 		}
-}
+	}
 
-if( isFound == 0){
-		printf("[%s]: error - file not found\n", recoverFile);
-		exit(-1);
-}
+	if( isFound == 0){
+			printf("[%s]: error - file not found\n", recoverFile);
+			exit(-1);
+	}
 
-//check whether the cluster storing the deleted file is occupied by another file
-int occupied;
-fseek(in, FAT_START + targetCluster * 4, SEEK_SET);
-fread(&occupied, 4, 1, in);
-occupied &= 0x0FFFFFFF;
-if( occupied != 0){
-		printf("[%s]: error - fail to recover\n", recoverFile);
-		exit(-1);
-}
+	//check whether the cluster storing the deleted file is occupied by another file
+	int occupied;
+	fseek(in, FAT_START + targetCluster * 4, SEEK_SET);
+	fread(&occupied, 4, 1, in);
+	occupied &= 0x0FFFFFFF;
+	if( occupied != 0){
+			printf("[%s]: error - fail to recover\n", recoverFile);
+			exit(-1);
+	}
 
-printf("targetCluster: %u\n", targetCluster);
+	printf("targetCluster: %u\n", targetCluster);
 
-int oneMB = 1024*1024;
-char buf[oneMB];
-FILE *out;
-if((out = fopen(outputFile, "w+")) == NULL){
-		printf("[%s]: failed to open\n", outputFile);
-}
+	int oneMB = 1024*1024;
+	char buf[oneMB];
+	FILE *out;
+	if((out = fopen(outputFile, "w+")) == NULL){
+			printf("[%s]: failed to open\n", outputFile);
+	}
 
-if(entrySize > oneMB){
-		int num_of_MB = entrySize/oneMB;
-		int remain_MB = entrySize - num_of_MB*oneMB;
-		int k;
-		fseek(in, ROOT_START + (targetCluster-2) * CLUSTER_SIZE, SEEK_SET);
+	if(entrySize > oneMB){
+			int num_of_MB = entrySize/oneMB;
+			int remain_MB = entrySize - num_of_MB*oneMB;
+			int k;
+			fseek(in, ROOT_START + (targetCluster-2) * CLUSTER_SIZE, SEEK_SET);
 
-		printf("the content\n");
-		for(k=0;k<num_of_MB;k++){
-				fread(buf, oneMB, 1, in);
-				fwrite(buf, oneMB, 1, out);
-				printf("%s",buf);
-		}
-		fread(buf, remain_MB, 1, in);
+			printf("the content\n");
+			for(k=0;k<num_of_MB;k++){
+					fread(buf, oneMB, 1, in);
+					fwrite(buf, oneMB, 1, out);
+					printf("%s",buf);
+			}
+			fread(buf, remain_MB, 1, in);
 		fwrite(buf, remain_MB, 1, out);
 		printf("%s\n",buf);
 
-}
-else{
-		//******************check the empty file 
-		fseek(in, ROOT_START + (targetCluster-2) * CLUSTER_SIZE, SEEK_SET);
-		fread(buf, entrySize, 1, in);
-		fwrite(buf, entrySize, 1, out);
-		printf("the content\n");
-		printf("%s\n", buf);
-}
+	}
+	else{
+			//******************check the empty file 
+			fseek(in, ROOT_START + (targetCluster-2) * CLUSTER_SIZE, SEEK_SET);
+			fread(buf, entrySize, 1, in);
+			fwrite(buf, entrySize, 1, out);
+			printf("the content\n");
+			printf("%s\n", buf);
+	}
 
-printf("[%s]: recovered\n", recoverFile); 	
-fclose(out);
+	printf("[%s]: recovered\n", recoverFile); 	
+	fclose(out);
 }
 
 int main(int argc, char **argv){
