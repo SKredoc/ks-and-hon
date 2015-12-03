@@ -268,6 +268,9 @@ int isSubDir(){
  * return the complete cluster address
  */
 unsigned int getClusterAddr(short high, short low){
+		printf("the high-bit is %d\n", high);
+		printf("the low-bit is %d\n", low);
+		printf("the complete address is %u\n", (unsigned int)(high * 0x10000 + low));
 		return (unsigned int)(high * 0x10000 + low);
 }
 
