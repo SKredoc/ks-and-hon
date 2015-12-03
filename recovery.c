@@ -188,8 +188,8 @@ unsigned char* correctName(unsigned char* name, unsigned char attr){
  **/
 void print_usage_of_program(char** s){
 		printf("Usage: %s -d [device filename] [other arguments]\n",s[0]);
-		printf("-l target\t\tList the target directory\n");
-		printf("-r target -o dest\tRecover the target pathname\n");
+		printf("-l target            List the target directory\n");
+		printf("-r target -o dest    Recover the target pathname\n");
 		exit(-1);
 }
 
