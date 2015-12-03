@@ -10,6 +10,7 @@ int rflag = 0; char recoverFile[1024];
 int oflag = 0; char outputFile[1024];
 
 uint32_t entrySize = 0;
+int entryisFound = 0;
 
 struct fat_BS
 {
@@ -283,7 +284,8 @@ unsigned int accessCluster(FILE* in, unsigned int targetCluster, char operation,
 		unsigned int ROOT_START = (BS.reserved_sector_count + BS.table_size_32 * BS.fat_num) * BS.bytes_per_sector;
 		unsigned int FAT_START = BS.reserved_sector_count* BS.bytes_per_sector;
 		unsigned int CLUSTER_SIZE = BS.bytes_per_sector * BS.sectors_per_cluster;
-
+		entrySize = 0; //for recovery usage
+		entryisFound = 0; //for recovery usage
 		int i = 0;
 		printf("targetCluster = %u\n", targetCluster);
 		struct DirEntry entry;
@@ -309,7 +311,8 @@ unsigned int accessCluster(FILE* in, unsigned int targetCluster, char operation,
 						else if(operation == 'f'){ //do finding the targetDir
 								if( strcmp(correctName(entry.name, entry.attr), targetDir) == 0){
 										entrySize = entry.filesize; //for recovery usage
-										printf("%s is found\n", targetDir);                      
+										entryisFound = 1; //for recovery usage
+										printf("%s is found, it is in [%u] cluster\n", targetDir,getClusterAddr(entry.first_hi, entry.first_lo));                      
 										return getClusterAddr(entry.first_hi, entry.first_lo);
 								}
 						}
@@ -407,6 +410,21 @@ void recover_target_pathname(FILE* in){
 		}
 	}
 
+	if(entryisFound == 1 && entrySize == 0){ // found the empty file
+		//create empty output file
+		printf("It is empty file, now create the empty outputfile\n");
+		FILE *empty_out;
+		if((empty_out = fopen(outputFile, "w+")) == NULL){
+			printf("[%s}: failed to open\n", outputFile);
+			exit(-1);
+		}
+		char empty_buf[1];
+		fwrite(empty_buf, 0, 1, empty_out);
+		fclose(empty_out);
+		printf("[%s]: recovered\n", recoverFile); 	
+		return;
+	}
+	
 	if( isFound == 0){
 			printf("[%s]: error - file not found\n", recoverFile);
 			exit(-1);
@@ -429,6 +447,7 @@ void recover_target_pathname(FILE* in){
 	FILE *out;
 	if((out = fopen(outputFile, "w+")) == NULL){
 			printf("[%s]: failed to open\n", outputFile);
+			exit(-1);
 	}
 
 	if(entrySize > oneMB){
