@@ -267,11 +267,9 @@ int isSubDir(){
 /** combine the high and low to a complete cluster address
  * return the complete cluster address
  */
-unsigned int getClusterAddr(short high, short low){
-		printf("the high-bit is %d\n", high);
-		printf("the low-bit is %d\n", low);
-		printf("the complete address is %u\n", (unsigned int)(high * 0x10000 + low));
-		return (unsigned int)(high * 0x10000 + low);
+unsigned int getClusterAddr(unsigned short high, unsigned short low){
+	unsigned int complete = high*0x10000 + low;
+	return complete;
 }
 
 /** either list the content of targetCluster with operation = 'l'
@@ -298,7 +296,6 @@ unsigned int accessCluster(FILE* in, unsigned int targetCluster, char operation,
 				while( data_read < CLUSTER_SIZE){ //read one cluster
 						fseek(in, ROOT_START + (targetCluster-2) * CLUSTER_SIZE + data_read, SEEK_SET); // go to the target cluster
 						fread(&entry, sizeof(entry), 1, in);
-						//printentry(entry);	
 						data_read += 32;
 						if( entry.name[0] == 0x00)
 								break;
@@ -392,6 +389,10 @@ void recover_target_pathname(FILE* in){
 		unsigned int FAT_START = BS.reserved_sector_count* BS.bytes_per_sector;
 		unsigned int CLUSTER_SIZE = BS.bytes_per_sector * BS.sectors_per_cluster;
 
+		if(strcmp(recoverFile,"/")==0){
+			printf("[/]: error - file not found\n");
+			exit(-1);
+		}
 		char path[1024];
 		strcpy(path, recoverFile);
 		char **subDirectory = (char**)malloc(sizeof(char*)*1024);
