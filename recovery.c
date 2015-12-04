@@ -287,7 +287,7 @@ unsigned int accessCluster(FILE* in, unsigned int targetCluster, char operation,
 		unsigned int CLUSTER_SIZE = BS.bytes_per_sector * BS.sectors_per_cluster;
 		entrySize = 0; //for recovery usage
 		entryisFound = 0; //for recovery usage
-		int i = 0;
+		unsigned long i = 0;
 		struct DirEntry entry;
 		unsigned int data_read = 0;
 
@@ -304,7 +304,7 @@ unsigned int accessCluster(FILE* in, unsigned int targetCluster, char operation,
 
 						else if(operation == 'l'){ //do listing the content of targetCluster
 								i++;
-								printf("%d, %s, %d, %u\n", i, correctName(entry.name,entry.attr), entry.filesize, getClusterAddr(entry.first_hi, entry.first_lo));
+								printf("%lu, %s, %u, %u\n", i, correctName(entry.name,entry.attr), entry.filesize, getClusterAddr(entry.first_hi, entry.first_lo));
 						}
 
 						else if(operation == 'f'){ //do finding the targetDir
