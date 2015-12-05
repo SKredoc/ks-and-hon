@@ -387,7 +387,7 @@ void recover_target_pathname(FILE* in){
 		unsigned int CLUSTER_SIZE = BS.bytes_per_sector * BS.sectors_per_cluster;
 
 		if(strcmp(recoverFile,"/")==0){
-			printf("/: error - file not found\n");
+			printf("[/]: error - file not found\n");
 			exit(-1);
 		}
 		char path[1024];
@@ -416,18 +416,18 @@ void recover_target_pathname(FILE* in){
 		//printf("It is empty file, now create the empty outputfile\n");
 		FILE *empty_out;
 		if((empty_out = fopen(outputFile, "w+")) == NULL){
-			printf("%s: failed to open\n", outputFile);
+			printf("[output %s]: failed to open\n", outputFile);
 			exit(-1);
 		}
 		char empty_buf[1];
 		fwrite(empty_buf, 0, 1, empty_out);
 		fclose(empty_out);
-		printf("/%s: recovered\n", recoverFile); 	
+		printf("[%s]: recovered\n", recoverFile); 	
 		return;
 	}
 	
 	if( isFound == 0){
-			printf("%s: error - file not found\n", recoverFile);
+			printf("[%s]: error - file not found\n", recoverFile);
 			exit(-1);
 	}
 
@@ -437,7 +437,7 @@ void recover_target_pathname(FILE* in){
 	fread(&occupied, 4, 1, in);
 	occupied &= 0x0FFFFFFF;
 	if( occupied != 0){
-			printf("%s: error - fail to recover\n", recoverFile);
+			printf("[%s]: error - fail to recover\n", recoverFile);
 			exit(-1);
 	}
 
@@ -447,7 +447,7 @@ void recover_target_pathname(FILE* in){
 	char buf[oneMB];
 	FILE *out;
 	if((out = fopen(outputFile, "w+")) == NULL){
-			printf("%s: failed to open\n", outputFile);
+			printf("[output %s]: failed to open\n", outputFile);
 			exit(-1);
 	}
 
@@ -477,7 +477,7 @@ void recover_target_pathname(FILE* in){
 			//printf("%s\n", buf);
 	}
 
-	printf("%s: recovered\n", recoverFile); 	
+	printf("[%s]: recovered\n", recoverFile); 	
 	fclose(out);
 }
 
